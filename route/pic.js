@@ -3,7 +3,9 @@ const express = require('express');
 const router = express.Router();
 const fd = require('formidable');
 const file = require('../model/file.js');
-const { SUCCESS,FAILED } = require('../status.js');
+const status = require('../status.js');
+const SUCCESS = status.SUCCESS;
+const FAILED = status.FAILED;
 
 // 处理 /pic/show 请求,展示某个相册里面的内容
 router.get('/show',function(req,res){

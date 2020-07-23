@@ -2,7 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const file = require('../model/file.js');
-const { SUCCESS,FAILED } = require('../status.js');
+const status = require('../status.js');
+const SUCCESS = status.SUCCESS;
+const FAILED = status.FAILED;
 
 // 处理 /dir请求,显示服务器上所有的相册
 router.get('/',function(req,res){
