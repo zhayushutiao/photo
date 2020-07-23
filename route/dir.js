@@ -79,7 +79,7 @@ router.get('/check',function(req,res){
 })
 
 // 处理 /dir/delete 请求,删除相册
-router.get('/delete',function(req,res){
+/* router.get('/delete',function(req,res){
     // 获取参数
     var dirName = req.query.dirName.trim();
     if(!dirName){
@@ -96,6 +96,6 @@ router.get('/delete',function(req,res){
         }
         res.send({status:SUCCESS,msg:'删除成功'});
     })
-})
+}) */
 // 暴露路由
 module.exports = router;

@@ -1,7 +1,7 @@
 // 用于直接操作相册和图片的模块
 const fs = require('fs');
 // 专门用于删除非空文件夹的模块
-const rf = require('rimraf');
+// const rf = require('rimraf');
 const sd = require('silly-datetime');
 const path = require('path');
  
@@ -34,11 +34,11 @@ exports.create = function(dirName,cb){
  * @param {Function} cb 回调函数
  */
 
-exports.delete = function(dirName,cb){
+/* exports.delete = function(dirName,cb){
     rf(dirName,function(err){
         cb(err);
     })
-}
+} */
 
 /**
  * @method 根据传进来的文件夹名称和文件对象,修改其保存路径及文件名称
