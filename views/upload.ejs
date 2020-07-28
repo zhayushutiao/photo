@@ -42,7 +42,7 @@
             <h4>请选择相册</h4>
             <select name="dirName" class="form-control">
                 <% for(var i=0;i<dirs.length;i++){ %>
-                <option value="<%= dirs[i] %>"><%= dirs[i] %></option>
+                <option value="<%= dirs[i].name %>"><%= dirs[i].name %></option>
                 <% } %>
             </select>
             <div class="form-group">

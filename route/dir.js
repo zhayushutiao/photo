@@ -1,23 +1,24 @@
 // 创建相册相关的路由
 const express = require('express');
 const router = express.Router();
-const file = require('../model/file.js');
+const { Dir } = require('../model/db.js');
+const fs = require('fs');
+const rf = require('rimraf');
 const status = require('../status.js');
 const SUCCESS = status.SUCCESS;
 const FAILED = status.FAILED;
 
 // 处理 /dir请求,显示服务器上所有的相册
 router.get('/',function(req,res){
-    // 将uploads里面的文件夹显示出来
-    var dirs = file.getDirs('./uploads',function(err,files){
+    // 从数据库获取当前服务器有哪些文件夹
+    Dir.find({},null,{sort:{name:1}},function(err,dirs){
         if(err){
-            console.log(err);
-            res.render('error',{errMsg:'打开相册失败'});
+            res.render('error',{errMsg:'获取文件夹失败'});
             return ;
         }
-        // 成功
-        res.render('index',{dirs:files});
-    });
+        // dirs是一个对象数组
+        res.render('index',{dirs:dirs});
+    })
 })
 
 // 处理 get方式的 /dir/mkdir  请求,跳转到新建相册页面
@@ -36,16 +37,18 @@ router.post('/mkdir',function(req,res){
         res.send({status:FAILED,msg:'相册名不合法'});
         return ;
     }
-    // 调用file的create方法来创建文件夹
-    // 将文件夹创建在uploads文件夹里面
-    dirName = 'uploads/'+dirName;
-    file.create(dirName,function(err){
+    // fs模块创建文件夹,保存进数据库
+    fs.mkdir('./uploads/'+dirName,function(err){
         if(err){
             console.log(err);
             res.send({status:FAILED,msg:'创建失败'});
             return ;
         }
-        res.send({status:SUCCESS,msg:'创建成功'});
+        // 创建成功,保存数据库
+        var o = new Dir({name:dirName});
+        o.save(function(err,d){
+            res.send({status:SUCCESS,msg:'创建成功'});
+        })
     })
 })
 
@@ -58,44 +61,39 @@ router.get('/check',function(req,res){
         res.send({status:FAILED,msg:'文件夹名称不能为空'});
         return ;
     }
-    // 获取所有文件夹,检查其中有没有该名称的文件夹
-    file.getDirs('./uploads',function(err,files){
+    // 判断dirName是否已经存在
+    Dir.find({name:dirName},function(err,dirs){
         if(err){
             console.log(err);
-            res.send({status:FAILED,msg:'服务器网络故障,稍后再试'})
+            res.send({status:FAILED,msg:'网络波动'});
             return ;
         }
-        // 读取成功,开始检查是否存在
-        var result = files.find(function(val){
-            return val == dirName;
-        })
-        if(result){/* 找到了 */
-            res.send({status:FAILED,msg:'已存在'});
-            return ;
+        if(dirs.length>0){//找到了数据
+            res.send({status:FAILED,msg:'文件夹已存在'});
+        }else{
+            res.send({status:SUCCESS,msg:'文件夹名称可以使用'});
         }
-        // 没找到
-        res.send({status:SUCCESS,msg:'可以使用'});
     })
 })
 
 // 处理 /dir/delete 请求,删除相册
-/* router.get('/delete',function(req,res){
+router.get('/delete',function(req,res){
     // 获取参数
     var dirName = req.query.dirName.trim();
     if(!dirName){
         res.send({status:FAILED,msg:'参数不合法'});
         return ;
     }
-    // 调用file的delete方法删除文件夹
-    dirName = 'uploads/'+dirName;
-    file.delete(dirName,function(err){
+    rf('./uploads/'+dirName,function(err){
         if(err){
-            console.log(err);
             res.send({status:FAILED,msg:'删除失败'});
             return ;
         }
-        res.send({status:SUCCESS,msg:'删除成功'});
+        // 删除文件夹成功,去删除数据库中的记录
+        Dir.deleteOne({name:dirName},function(err,raw){
+            res.send({status:SUCCESS,msg:'删除成功'});
+        })
     })
-}) */
+})
 // 暴露路由
 module.exports = router;
