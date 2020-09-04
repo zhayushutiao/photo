@@ -3,7 +3,7 @@ const express = require('express');
 const router = require('./route');
 const app = express();
 
-app.listen(4000);
+app.listen(4001);
 
 // 设置视图模板引擎
 app.set('view engine','ejs');
